@@ -13,12 +13,13 @@ function Testimonials() {
   const [error, setError] = useState(null);
   
   // Use environment variable for API URL
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  // Remove trailing slash from the environment variable
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const response = await axios.get(`${API_URL}/testimonials`);
+        const response = await axios.get(`${API_URL}/api/testimonials`);
         setTestimonials(response.data);
         setLoading(false);
       } catch (err) {
