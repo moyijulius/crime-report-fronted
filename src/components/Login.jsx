@@ -55,17 +55,13 @@ function Login() {
         pauseOnHover: true,
         draggable: true,
         onClose: () => {
-          // Enhanced role-based routing
-          switch(role) {
-            case 'admin':
-              navigate('/admin/dashboard');
-              break;
-            case 'officer':
-              navigate('/officer/cases');
-              break;
-            default:
-              navigate('/user/profile');
-          }
+          const redirectPath = {
+            admin: '/admin/testimonials',
+            officer: '/officer/dashboard',
+            user: '/user/profile'
+          }[role] || '/';
+          
+          navigate(redirectPath);
         }
       });
 

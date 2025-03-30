@@ -26,40 +26,61 @@ const ProtectedUserRoute = ({ children }) => {
 // Layout component to control Header/Footer visibility
 const Layout = ({ children }) => {
   const location = useLocation();
-  
-  // Hide Header and Footer if on login page
-  const hideHeaderFooter = location.pathname === '/login' || location.pathname === '/officer/dashboard' || location.pathname === '/track' || location.pathname === '/report' || location.pathname === '/admin/testimonials';
+  const hidePaths = ['/login', '/register'];
+  const showHeaderFooter = !hidePaths.includes(location.pathname);
 
   return (
     <>
-      {!hideHeaderFooter && <Header />}
+      {showHeaderFooter && <Header />}
       {children}
-      {!hideHeaderFooter && <Footer />}
+      {showHeaderFooter && <Footer />}
     </>
   );
-};
+}; 
+  // Hide Header and Footer if on login page
+  const hideHeaderFooter = location.pathname === '/login' || location.pathname === '/officer/dashboard' || location.pathname === '/track' || location.pathname === '/report' || location.pathname === '/admin/testimonials';
+
+  
 
 function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<><Hero /><HowItWorks /><Testimonials /></>} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/track" element={<TrackCase />} />
-          <Route path="/review" element={<ReviewPage />} />
-          <Route path="/admin/testimonials" element={<AdminTestimonials />} />
-          <Route path="/officer/dashboard" element={<OfficerDashboard />} />
+      // Update these routes in App.jsx
+<Routes>
+  {/* Public Routes */}
+  <Route path="/" element={<><Hero /><HowItWorks /><Testimonials /></>} />
+  <Route path="/contact" element={<ContactUs />} />
+  <Route path="/register" element={<Register />} />
+  <Route path="/track" element={<TrackCase />} />
+  <Route path="/review" element={<ReviewPage />} />
+  <Route path="/login" element={<Login />} />
 
-          {/* Login Page - No Header/Footer */}
-          <Route path="/login" element={<Login />} />
-
-          {/* Protected User Routes */}
-          <Route path="/report" element={<ProtectedUserRoute><ReportCrime /></ProtectedUserRoute>} />
-          <Route path="/profile" element={<ProtectedUserRoute><UserProfile /></ProtectedUserRoute>} />
-        </Routes>
+  {/* Protected Routes */}
+  <Route path="/admin/testimonials" element={
+    <ProtectedUserRoute>
+      <AdminTestimonials />
+    </ProtectedUserRoute>
+  } />
+  
+  <Route path="/officer/dashboard" element={
+    <ProtectedUserRoute>
+      <OfficerDashboard />
+    </ProtectedUserRoute>
+  } />
+  
+  <Route path="/user/profile" element={  // Changed from /profile to /user/profile
+    <ProtectedUserRoute>
+      <UserProfile />
+    </ProtectedUserRoute>
+  } />
+  
+  <Route path="/report" element={
+    <ProtectedUserRoute>
+      <ReportCrime />
+    </ProtectedUserRoute>
+  } />
+</Routes>
       </Layout>
     </Router>
   );
