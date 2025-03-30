@@ -35,18 +35,6 @@ useEffect(() => {
         return;
       }
 
-      // Fetch user profile
-      //const userResponse = await fetch(`${API_URL}/api/auth/profile`, {
-       // headers: { Authorization: `Bearer ${token}` }
-      //});
-      
-      //if (!userResponse.ok) {
-      //  throw new Error('Failed to fetch user profile');
-      //}
-      
-      const userData = await userResponse.json();
-      setUser(userData);
-      
       // Fetch user reports
       const reportsResponse = await fetch(`${API_URL}/api/reports/user`, {
         headers: { Authorization: `Bearer ${token}` }
