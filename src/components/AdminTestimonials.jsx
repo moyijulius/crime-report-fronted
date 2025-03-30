@@ -42,16 +42,16 @@ function AdminPanel() {
   // Fetch all data on component mount
   const fetchData = async () => {
     try {
-      const testimonialsRes = await authAxios.get("/api/testimonials");
+      const testimonialsRes = await authAxios.get("/api/admin/testimonials");
       setTestimonials(testimonialsRes.data);
-
-      const usersRes = await authAxios.get("/api/users");
+  
+      const usersRes = await authAxios.get("/api/admin/users");
       setUsers(usersRes.data);
-
-      const officersRes = await authAxios.get("/api/users?role=officer");
+  
+      const officersRes = await authAxios.get("/api/admin/users?role=officer");
       setOfficers(officersRes.data);
-
-      const reportsRes = await authAxios.get("/api/reports");
+  
+      const reportsRes = await authAxios.get("/api/admin/reports");
       setReports(reportsRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -95,7 +95,7 @@ function AdminPanel() {
   // Handle user edit and save
   const saveUserChanges = async () => {
     try {
-      const res = await authAxios.put(`/api/users/${editingUser}`, userFormData);
+      const res = await authAxios.put(`/api/admin/users/${editingUser}`, userFormData);
       setUsers(users.map(user => user._id === editingUser ? res.data : user));
       
       if (res.data.role === "officer") {
@@ -116,7 +116,7 @@ function AdminPanel() {
   // Handle report status update
   const updateReportStatus = async (id, status) => {
     try {
-      await authAxios.patch(`/api/reports/${id}/status`, { status });
+      await authAxios.patch(`/api/admin/reports/${id}/status`, { status });
       setReports(reports.map(report => 
         report._id === id ? { ...report, status } : report
       ));
