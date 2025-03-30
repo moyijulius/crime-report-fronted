@@ -9,10 +9,16 @@ This is a role-based crime reporting platform that allows citizens to securely r
 
 ---
 
-## 🚀 Prerequisites
-Before running this project, ensure you have:
+## 🚀 Deployment Links
+- **Frontend URL**: [Crime Report Frontend](https://crime-report-fronted.vercel.app/)
+- **Backend API**: [Crime Report Backend](https://crime-report-backend-7zgy.onrender.com)
 
-- **MongoDB** installed and running locally or provide a connection string to a remote MongoDB instance
+---
+
+## 🛠️ Prerequisites
+Before running this project locally, ensure you have:
+
+- **MongoDB Atlas** or a local MongoDB instance
 - **Node.js** (v14 or later) installed
 - **npm** or **yarn** package manager
 
@@ -42,20 +48,20 @@ npm install
 ### Backend Configuration
 Create a `.env` file in the `backend` directory with the following variables:
 ```plaintext
-MONGODB_URI=mongodb://localhost:27017/crimeReportingDB
+MONGODB_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret_key
 PORT=5000
 ```
 
-### Frontend Configuration (if needed)
+### Frontend Configuration
 Create a `.env` file in the `frontend` directory:
 ```plaintext
-REACT_APP_API_BASE_URL=http://localhost:5000
+REACT_APP_API_BASE_URL=https://crime-report-backend-7zgy.onrender.com
 ```
 
 ---
 
-## 🏃‍♂️ Running the Application
+## 🏃‍♂️ Running the Application Locally
 ### Start the backend server:
 ```bash
 cd backend
@@ -75,35 +81,26 @@ The application should now be running at:
 ---
 
 ## 👥 User Roles & Initial Setup
-### 🔐 Creating Initial Admin and Officers
-Use **MongoDB Compass** or the **mongo shell** to manually create the first admin account in the `users` collection:
-```javascript
-db.users.insertOne({
-  name: "Admin User",
-  email: "admin@example.com",
-  password: "hashed_password", // Use bcrypt to hash the password
-  role: "admin",
-  createdAt: new Date(),
-  updatedAt: new Date()
-})
-```
+### 🔒 Admin and Officer Credentials
+The system currently has predefined admin and officer accounts:
+- **Admin Login**
+  - **Email**: `admin@crime.com`
+  - **Password**: `secureAdmin123#`
+- **Officer Login**
+  - **Email**: `officer@crime.com`
+  - **Password**: `secureOfficer123#`
 
-### Creating Officers:
-Officers can be created:
-- By the admin through the admin dashboard after initial setup
-- Or manually in the database with `role: "officer"`
-
-### 🆕 Normal User Registration
+### 🔄 Normal User Registration
 Normal users can register through the application's registration page:
-1. Navigate to [http://localhost:3000/register](http://localhost:3000/register)
-2. Fill in the registration form (email, name, password)
-3. Submit to create a normal user account
+1. Navigate to [Crime Report Frontend](https://crime-report-fronted.vercel.app/)
+2. Click on **Register**
+3. Fill in the form (email, name, password)
+4. Submit to create an account
 
 ---
 
 ## 🌟 Key Features
-
-### 👨‍💻 For Normal Users
+### 👨‍💼 For Normal Users
 #### Report a Crime
 - Navigate to "Report a Crime"
 - Fill in crime details (type, location, description)
@@ -121,7 +118,7 @@ Normal users can register through the application's registration page:
 - Update personal information
 - Manage notification preferences
 
-### 👮 For Officers
+### 🥷 For Officers
 #### Officer Dashboard
 - View assigned cases
 - Update case status
@@ -132,7 +129,6 @@ Normal users can register through the application's registration page:
 #### User Management
 - Create/edit/delete users
 - Assign officer roles
-
 
 #### Content Management
 - Approve/reject testimonials
@@ -150,7 +146,7 @@ The report crime page includes an **AI chatbot** that:
 ---
 
 ## 📊 Database Collections
-The **MongoDB database** uses these main collections:
+The **MongoDB Atlas database** uses these main collections:
 - `users` - Stores all user accounts (normal users, officers, admins)
 - `reports` - Contains all crime reports with status updates
 - `testimonials` - Stores user testimonials for the homepage
@@ -158,10 +154,10 @@ The **MongoDB database** uses these main collections:
 
 ---
 
-## 🛠 Troubleshooting
+## 🛠️ Troubleshooting
 ### MongoDB Connection Issues
-- Ensure MongoDB is running (`sudo systemctl start mongod` on Linux)
-- Verify connection string in `.env` file
+- Ensure the **MongoDB Atlas connection string** is correctly set in `.env`
+- Verify your **IP whitelist** settings in MongoDB Atlas
 
 ### Authentication Problems
 - Check JWT secret in backend `.env`
@@ -172,7 +168,6 @@ The **MongoDB database** uses these main collections:
 - Check **CORS settings** in backend if requests are blocked
 
 ---
-
 
 For support or questions, please contact moyijulius17@gmail.com.
 
