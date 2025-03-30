@@ -45,6 +45,8 @@ function OfficerDashboard() {
 
   const navigate = useNavigate();
 
+  const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
   // Logout handler
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -101,8 +103,9 @@ function OfficerDashboard() {
         // Try to fetch from API, fall back to mock data if it fails
         let data;
         try {
-          const response = await fetch("http://localhost:5000/api/reports", {
+            const response = await fetch(`${API_URL}/api/reports`, {
             headers: { Authorization: `Bearer ${token}` },
+            
             // Added timeout to prevent hanging requests
             signal: AbortSignal.timeout(10000)
           });
