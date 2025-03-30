@@ -16,12 +16,13 @@ function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+      // Backend URL from environment variable
+  const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
+  
   const { username, email, password, confirmPassword, phone } = formData;
 
-  // Clear specific field error when user types
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' });
     }
@@ -55,35 +56,15 @@ function Register() {
     if (strength === 3) return 'bg-blue-500';
     return 'bg-green-500';
   };
-
   const validate = () => {
     const newErrors = {};
     
-    // Username validation
-    if (username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
-    }
-    
-    // Email validation
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      newErrors.email = 'Enter a valid email address';
-    }
-    
-    // Password validation
-    if (password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    } else if (checkPasswordStrength(password) < 2) {
-      newErrors.password = 'Password is too weak';
-    }
-    
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    // Phone validation (optional)
-    if (phone && !/^\+?[0-9()-\s]{7,15}$/.test(phone)) {
-      newErrors.phone = 'Enter a valid phone number';
-    }
+    if (username.length < 3) newErrors.username = 'Username must be at least 3 characters';
+    if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = 'Enter a valid email address';
+    if (password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    else if (checkPasswordStrength(password) < 2) newErrors.password = 'Password is too weak';
+    if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (phone && !/^\+?[0-9()-\s]{7,15}$/.test(phone)) newErrors.phone = 'Enter a valid phone number';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -100,42 +81,39 @@ function Register() {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          username, 
-          email, 
-          password,
-          phone 
-        }),
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
+        username, 
+        email, 
+        password,
+        phone
+      }, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      toast.success('Registration successful! Redirecting to login...', {
+        onClose: () => navigate('/login')
       });
       
-      const data = await response.json();
+      setTimeout(() => navigate('/login'), 2000);
       
-      if (response.ok) {
-        toast.success('Registration successful! Redirecting to login...', {
-          onClose: () => navigate('/login')
-        });
-        // Delay navigation to allow toast to be seen
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        // Server-side validation errors
-        if (data.errors) {
-          setErrors(data.errors);
-          // Show all validation errors as toasts
-          Object.values(data.errors).forEach(error => {
-            toast.error(error);
-          });
-        } else {
-          toast.error(data.error || 'Registration failed');
-        }
-      }
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error('Network error. Please check your connection and try again.');
+      
+      if (error.response) {
+        // Server validation errors
+        if (error.response.data.errors) {
+          setErrors(error.response.data.errors);
+          Object.values(error.response.data.errors).forEach(err => {
+            toast.error(err);
+          });
+        } else {
+          toast.error(error.response.data.message || 'Registration failed');
+        }
+      } else if (error.request) {
+        toast.error('No response from server. Please try again.');
+      } else {
+        toast.error('Network error. Please check your connection.');
+      }
     } finally {
       setIsLoading(false);
     }

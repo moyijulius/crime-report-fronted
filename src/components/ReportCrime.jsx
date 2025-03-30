@@ -1,69 +1,74 @@
 import React, { useState } from 'react';
 import Chatbot from './Chatbot';
 import Modal from './Modal'; 
-
 function ReportCrime() {
   const [crimeType, setCrimeType] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [files, setFiles] = useState([]);
-
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-// In your ReportCrime.jsx file, update the handleSubmit function:
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem('token');
-  if (!token) {
-    setModalMessage('Please log in first to submit a report');
-    setIsModalOpen(true);
-    return;
-  }
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Create a FormData object to handle file uploads
-  const formData = new FormData();
-  formData.append('crimeType', crimeType);
-  formData.append('location', location);
-  formData.append('description', description);
-  formData.append('isAnonymous', isAnonymous);
-  files.forEach((file) => formData.append('files', file));
+  // Backend URL from environment variable
+  const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
-  try {
-    const token = localStorage.getItem('token'); // Get the token from localStorage
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
     
-    const response = await fetch('http://localhost:5000/api/reports', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`, 
-      },
-      body: formData, // Send FormData for file uploads
-    });
+    if (!token) {
+      setModalMessage('Please log in first to submit a report');
+      setIsModalOpen(true);
+      return;
+    }
 
-    const data = await response.json();
-    if (response.ok) {
-      // Show success modal with reference number
-      setModalMessage(`Crime report submitted successfully! Your reference number is: ${data.referenceNumber}`);
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('crimeType', crimeType);
+      formData.append('location', location);
+      formData.append('description', description);
+      formData.append('isAnonymous', isAnonymous);
+      files.forEach((file) => formData.append('files', file));
+
+      const response = await axios.post(`${API_URL}/api/reports`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setModalMessage(`Crime report submitted successfully! Your reference number is: ${response.data.referenceNumber}`);
       setIsModalOpen(true);
 
-      // Reset form fields
+      // Reset form
       setCrimeType('');
       setLocation('');
       setDescription('');
       setIsAnonymous(false);
       setFiles([]);
-    } else {
-      // Show error modal
-      setModalMessage(data.error || 'Failed to submit report');
+
+    } catch (error) {
+      console.error('Report submission error:', error);
+      
+      let errorMessage = 'Error submitting report';
+      if (error.response) {
+        // Server responded with error status
+        errorMessage = error.response.data.message || error.response.data.error || errorMessage;
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage = 'No response from server. Please try again.';
+      }
+
+      setModalMessage(errorMessage);
       setIsModalOpen(true);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    // Show error modal
-    setModalMessage('Error submitting report');
-    setIsModalOpen(true);
-  }
-};
+  };
 
   return (
     <section className="py-12 bg-gray-50">
