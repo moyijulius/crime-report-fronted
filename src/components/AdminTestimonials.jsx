@@ -48,7 +48,7 @@ function AdminPanel() {
       const usersRes = await authAxios.get("/api/admin/users");
       setUsers(usersRes.data);
   
-      const officersRes = await authAxios.get("/api/admin/users?role=officer");
+      const officersRes = await authAxios.get("/api/admin/users/role/officer");
       setOfficers(officersRes.data);
   
       const reportsRes = await authAxios.get("/api/admin/reports");
@@ -83,7 +83,7 @@ function AdminPanel() {
   // Handle testimonial approval
   const updateApproval = async (id, approved) => {
     try {
-      await authAxios.patch(`/api/testimonials/${id}`, { approved });
+      await authAxios.patch(`/api/admin/testimonials/${id}`, { approved });
       setTestimonials((prev) =>
         prev.map((t) => (t._id === id ? { ...t, approved } : t))
       );
