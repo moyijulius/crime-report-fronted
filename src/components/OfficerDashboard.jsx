@@ -69,7 +69,7 @@ function OfficerDashboard() {
         }
       
         const mockData = {
-          name: "Officer John Doe",
+          name: "Officer Julius Moyi",
           badge: "ID: 12345",
           department: "Central Division",
           role: "Detective"

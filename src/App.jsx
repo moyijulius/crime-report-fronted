@@ -46,7 +46,6 @@ function App() {
   return (
     <Router>
       <Layout>
-      // Update these routes in App.jsx
 <Routes>
   {/* Public Routes */}
   <Route path="/" element={<><Hero /><HowItWorks /><Testimonials /></>} />

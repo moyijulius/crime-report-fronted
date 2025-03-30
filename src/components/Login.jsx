@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -21,7 +20,6 @@ function Login() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -39,14 +37,19 @@ function Login() {
           'Accept': 'application/json'
         }
       });
-
+  
       const { token, userId, role } = response.data;
       
       // Store authentication data
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
       localStorage.setItem('userRole', role); // Store role for authorization checks
-
+      
+      // If the user is an admin, store adminToken
+      if (role === 'admin') {
+        localStorage.setItem('adminToken', token);
+      }
+  
       toast.success('Login successful! Redirecting...', {
         position: "top-right",
         autoClose: 2000,
@@ -64,7 +67,6 @@ function Login() {
           navigate(redirectPath);
         }
       });
-
     } catch (error) {
       console.error('Full login error:', {
         config: error.config,
