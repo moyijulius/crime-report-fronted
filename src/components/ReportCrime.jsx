@@ -33,45 +33,57 @@ function ReportCrime() {
       formData.append('location', location);
       formData.append('description', description);
       formData.append('isAnonymous', isAnonymous);
-      files.forEach((file) => formData.append('files', file));
+      
+      // Add files if they exist
+      if (files && files.length > 0) {
+        files.forEach((file) => formData.append('files', file));
+      }
   
       const response = await axios.post(`${API_URL}/api/reports`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 30000 // 30 second timeout
       });
   
-      setModalMessage(`Crime report submitted successfully! Your reference number is: ${response.data.referenceNumber}`);
+      if (response.data.success) {
+        setModalMessage(`Report submitted! Reference #: ${response.data.referenceNumber}`);
+        // Reset form
+        setCrimeType('');
+        setLocation('');
+        setDescription('');
+        setIsAnonymous(false);
+        setFiles([]);
+      } else {
+        setModalMessage(response.data.error || 'Report submission failed');
+      }
+      
       setIsModalOpen(true);
   
-      // Reset form
-      setCrimeType('');
-      setLocation('');
-      setDescription('');
-      setIsAnonymous(false);
-      setFiles([]);
-  
     } catch (error) {
-      console.error('Full report submission error:', {
-        config: error.config,
-        response: error.response?.data,
-        message: error.message
-      });
-      
       let errorMessage = 'Error submitting report';
+      
       if (error.response) {
-        errorMessage = error.response.data?.message || 
-                     error.response.data?.error || 
-                     errorMessage;
+        // Server responded with error status
+        errorMessage = error.response.data?.error || 
+                      error.response.data?.message || 
+                      errorMessage;
+        
+        if (error.response.data?.details) {
+          errorMessage += `: ${JSON.stringify(error.response.data.details)}`;
+        }
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timeout. Please try again.';
       } else if (error.request) {
-        errorMessage = 'No response from server. Please try again.';
+        errorMessage = 'No response from server. Please check your connection.';
       } else {
         errorMessage = error.message || errorMessage;
       }
   
       setModalMessage(errorMessage);
       setIsModalOpen(true);
+      console.error('Full error details:', error);
     } finally {
       setIsLoading(false);
     }
