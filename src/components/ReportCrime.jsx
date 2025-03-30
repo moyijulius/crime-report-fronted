@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Chatbot from './Chatbot';
-import Modal from './Modal'; 
+import Modal from './Modal';
+import axios from 'axios';
+
 function ReportCrime() {
   const [crimeType, setCrimeType] = useState('');
   const [location, setLocation] = useState('');
@@ -13,7 +15,6 @@ function ReportCrime() {
 
   // Backend URL from environment variable
   const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
@@ -23,9 +24,9 @@ function ReportCrime() {
       setIsModalOpen(true);
       return;
     }
-
+  
     setIsLoading(true);
-
+  
     try {
       const formData = new FormData();
       formData.append('crimeType', crimeType);
@@ -33,36 +34,42 @@ function ReportCrime() {
       formData.append('description', description);
       formData.append('isAnonymous', isAnonymous);
       files.forEach((file) => formData.append('files', file));
-
+  
       const response = await axios.post(`${API_URL}/api/reports`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
-
+  
       setModalMessage(`Crime report submitted successfully! Your reference number is: ${response.data.referenceNumber}`);
       setIsModalOpen(true);
-
+  
       // Reset form
       setCrimeType('');
       setLocation('');
       setDescription('');
       setIsAnonymous(false);
       setFiles([]);
-
+  
     } catch (error) {
-      console.error('Report submission error:', error);
+      console.error('Full report submission error:', {
+        config: error.config,
+        response: error.response?.data,
+        message: error.message
+      });
       
       let errorMessage = 'Error submitting report';
       if (error.response) {
-        // Server responded with error status
-        errorMessage = error.response.data.message || error.response.data.error || errorMessage;
+        errorMessage = error.response.data?.message || 
+                     error.response.data?.error || 
+                     errorMessage;
       } else if (error.request) {
-        // Request was made but no response received
         errorMessage = 'No response from server. Please try again.';
+      } else {
+        errorMessage = error.message || errorMessage;
       }
-
+  
       setModalMessage(errorMessage);
       setIsModalOpen(true);
     } finally {

@@ -16,13 +16,15 @@ function UserProfileHeader() {
   const toggleProfileModal = () => {
     setIsProfileModalOpen(!isProfileModalOpen);
   };
+  const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
 
   // Fetch user profile data on component mount
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/auth/profile', {
+        const response = await fetch(`${API_URL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
@@ -45,7 +47,7 @@ function UserProfileHeader() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(user),

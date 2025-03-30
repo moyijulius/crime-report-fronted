@@ -105,7 +105,7 @@ const HowItWorks = () => {
             transition={{ delay: 0.5 }}
           >
             <a
-              href="#report"
+              href="/login"
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-300 inline-flex items-center"
             >
               Start Your Report
