@@ -91,6 +91,25 @@ function AdminPanel() {
       console.error("Error updating testimonial:", error);
     }
   };
+  // Add this function to your AdminPanel component
+const editUser = (user) => {
+  setEditingUser(user._id);
+  setUserFormData({
+    username: user.username || "",
+    email: user.email || "",
+    phone: user.phone || "",
+    role: user.role || "user"
+  });
+};
+
+// Also add this handler function that's missing
+const handleUserFormChange = (e) => {
+  const { name, value } = e.target;
+  setUserFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
+};
 
   // Handle user edit and save
   const saveUserChanges = async () => {
