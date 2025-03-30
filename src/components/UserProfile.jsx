@@ -25,7 +25,48 @@ function UserProfile() {
   const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   // Fetch user profile data and reports on component mount
+// Add this useEffect to fetch user profile data and reports on component mount
+useEffect(() => {
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
+      // Fetch user profile
+      //const userResponse = await fetch(`${API_URL}/api/auth/profile`, {
+       // headers: { Authorization: `Bearer ${token}` }
+      //});
+      
+      //if (!userResponse.ok) {
+      //  throw new Error('Failed to fetch user profile');
+      //}
+      
+      const userData = await userResponse.json();
+      setUser(userData);
+      
+      // Fetch user reports
+      const reportsResponse = await fetch(`${API_URL}/api/reports/user`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (!reportsResponse.ok) {
+        throw new Error('Failed to fetch reports');
+      }
+      
+      const reportsData = await reportsResponse.json();
+      setPastReports(reportsData);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setErrorMessage(error.message);
+      setIsErrorModalOpen(true);
+    }
+  };
+
+  fetchUserData();
+}, [API_URL, navigate]);
   
   // Apply filters effect
   // Apply filters effect

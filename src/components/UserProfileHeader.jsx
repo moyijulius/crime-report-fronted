@@ -70,19 +70,18 @@ function UserProfileHeader() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('officerToken');
+    const navigate = useNavigate(); // React Router navigation
+  
+    localStorage.removeItem("token");
+    localStorage.removeItem("officerToken");
+  
     toast.success("Logged out successfully!", {
       position: "top-right",
       autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
     });
+  
     setTimeout(() => {
-      window.location.href = '/login';
+      navigate("/login"); // Redirect using React Router
     }, 2005);
   };
 
