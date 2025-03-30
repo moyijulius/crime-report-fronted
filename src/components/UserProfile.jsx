@@ -26,56 +26,7 @@ function UserProfile() {
 
   // Fetch user profile data and reports on component mount
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/login');
-          return;
-        }
-    
-        // Fetch user profile
-        const profileResponse = await fetch(`${API_URL}/api/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        if (!profileResponse.ok) {
-          throw new Error('Failed to fetch profile');
-        }
-        
-        const profileData = await profileResponse.json();
-        setUser(profileData);
-    
-        // Fetch user's reports - CORRECTED ENDPOINT
-        const reportsResponse = await fetch(`${API_URL}/api/reports/user`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        if (!reportsResponse.ok) {
-          throw new Error('Failed to fetch reports');
-        }
-        
-        const reportsData = await reportsResponse.json();
-        const reportData = Array.isArray(reportsData) ? reportsData : [];
-        setPastReports(reportData);
-        setFilteredReports(reportData);
-        
-      } catch (error) {
-        console.error('Fetch error:', error);
-        setErrorMessage(error.message || 'Failed to load data');
-        setIsErrorModalOpen(true);
-        
-        // If unauthorized, redirect to login
-        if (error.message.includes('401')) {
-          localStorage.removeItem('token');
-          navigate('/login');
-        }
-      }
-    };
-    fetchUserProfile();
-  }, []);
-
+  
   // Apply filters effect
   // Apply filters effect
 useEffect(() => {
