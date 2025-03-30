@@ -18,7 +18,7 @@ function Testimonials() {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/testimonials`);
+        const response = await axios.get(`${API_URL}/testimonials`);
         setTestimonials(response.data);
         setLoading(false);
       } catch (err) {
