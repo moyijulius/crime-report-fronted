@@ -12,50 +12,28 @@ function Testimonials() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Use environment variable for API URL
-  // Remove trailing slash from the environment variable
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
-useEffect(() => {
-  const fetchTestimonials = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/testimonials`, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      setTestimonials(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message || 'Failed to load testimonials');
-      setLoading(false);
-      console.error('Error fetching testimonials:', err);
-      
-      // For debugging:
-      if (err.response) {
-        console.error('Response error:', err.response.status, err.response.data);
-      } else if (err.request) {
-        console.error('No response received:', err.request);
-      }
-    }
-  };
+  // Backend URL from environment variable
+  const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-  fetchTestimonials();
-}, [API_URL]);
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/testimonials`);
+        setTestimonials(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to load testimonials');
+        setLoading(false);
+        console.error('Error fetching testimonials:', err);
+      }
+    };
+
+    fetchTestimonials();
+  }, [API_URL]);
+
   const cardVariants = {
-    offscreen: {
-      y: 50,
-      opacity: 0,
-    },
-    onscreen: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: 'spring',
-        bounce: 0.4,
-        duration: 0.8,
-      },
-    },
+    offscreen: { y: 50, opacity: 0 },
+    onscreen: { y: 0, opacity: 1, transition: { type: 'spring', bounce: 0.4, duration: 0.8 } },
   };
 
   if (loading) {
@@ -82,35 +60,17 @@ useEffect(() => {
     );
   }
 
-  // Fallback to default testimonials if none are found in the database
   const displayTestimonials = testimonials.length > 0 ? testimonials : [
-    {
-      _id: '1',
-      text: 'This platform helped me report a crime anonymously. Highly recommended!',
-      rating: 5,
-    },
-    {
-      _id: '2',
-      text: 'The case tracking feature is amazing. I always knew the status of my report.',
-      rating: 5,
-    },
-    {
-      _id: '3',
-      text: 'Great service! The officers were very responsive.',
-      rating: 5,
-    }
+    { _id: '1', text: 'This platform helped me report a crime anonymously. Highly recommended!', rating: 5 },
+    { _id: '2', text: 'The case tracking feature is amazing. I always knew the status of my report.', rating: 5 },
+    { _id: '3', text: 'Great service! The officers were very responsive.', rating: 5 }
   ];
 
   return (
     <section className="py-20 bg-gradient-to-r from-blue-50 to-indigo-50">
       <div className="container mx-auto text-center">
         <h2 className="text-4xl font-bold mb-12 text-blue-600">What Our Users Say</h2>
-        <motion.div
-          initial="offscreen"
-          whileInView="onscreen"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={cardVariants}
-        >
+        <motion.div initial="offscreen" whileInView="onscreen" viewport={{ once: true, amount: 0.2 }} variants={cardVariants}>
           <Swiper
             modules={[Pagination, Autoplay]}
             spaceBetween={30}
@@ -118,15 +78,9 @@ useEffect(() => {
             pagination={{ clickable: true }}
             autoplay={{ delay: 3000, disableOnInteraction: false }}
             breakpoints={{
-              640: {
-                slidesPerView: 1,
-              },
-              768: {
-                slidesPerView: 2,
-              },
-              1024: {
-                slidesPerView: 3,
-              },
+              640: { slidesPerView: 1 },
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
             }}
             className="px-4"
           >
