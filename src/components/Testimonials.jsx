@@ -15,22 +15,33 @@ function Testimonials() {
   // Use environment variable for API URL
   // Remove trailing slash from the environment variable
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
-
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/testimonials`);
-        setTestimonials(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message || 'Failed to load testimonials');
-        setLoading(false);
-        console.error('Error fetching testimonials:', err);
+useEffect(() => {
+  const fetchTestimonials = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/testimonials`, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      setTestimonials(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message || 'Failed to load testimonials');
+      setLoading(false);
+      console.error('Error fetching testimonials:', err);
+      
+      // For debugging:
+      if (err.response) {
+        console.error('Response error:', err.response.status, err.response.data);
+      } else if (err.request) {
+        console.error('No response received:', err.request);
       }
-    };
+    }
+  };
 
-    fetchTestimonials();
-  }, [API_URL]); 
+  fetchTestimonials();
+}, [API_URL]);
   const cardVariants = {
     offscreen: {
       y: 50,
