@@ -25,37 +25,52 @@ function UserProfile() {
   const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   // Fetch user profile data and reports on component mount
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem('token');
-        
-          const response = await fetch(`${API_URL}/api/auth/profile`, {
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+    
+        // Fetch user profile
+        const profileResponse = await fetch(`${API_URL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const data = await response.json();
-        if (response.ok) {
-          setUser(data);
-          // Fetch user's report
-            const response = await fetch(`${API_URL}/api/reports/user`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const reportsData = await reportsResponse.json();
-          if (reportsResponse.ok) {
-            const reportData = Array.isArray(reportsData) ? reportsData : [];
-            setPastReports(reportData);
-            setFilteredReports(reportData);
-          } else {
-            setErrorMessage(reportsData.error || 'Failed to fetch reports');
-            setIsErrorModalOpen(true);
-          }
-        } else {
-          setErrorMessage(data.error || 'Failed to fetch profile');
-          setIsErrorModalOpen(true);
+        
+        if (!profileResponse.ok) {
+          throw new Error('Failed to fetch profile');
         }
+        
+        const profileData = await profileResponse.json();
+        setUser(profileData);
+    
+        // Fetch user's reports - CORRECTED ENDPOINT
+        const reportsResponse = await fetch(`${API_URL}/api/reports/user`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        if (!reportsResponse.ok) {
+          throw new Error('Failed to fetch reports');
+        }
+        
+        const reportsData = await reportsResponse.json();
+        const reportData = Array.isArray(reportsData) ? reportsData : [];
+        setPastReports(reportData);
+        setFilteredReports(reportData);
+        
       } catch (error) {
-        setErrorMessage('Error fetching profile');
+        console.error('Fetch error:', error);
+        setErrorMessage(error.message || 'Failed to load data');
         setIsErrorModalOpen(true);
+        
+        // If unauthorized, redirect to login
+        if (error.message.includes('401')) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
       }
     };
     fetchUserProfile();
