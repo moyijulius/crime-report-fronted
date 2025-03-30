@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
-
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
@@ -17,6 +15,7 @@ function Login() {
   // Updated environment variable reference and URL handling
   const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -24,60 +23,59 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
     console.log("Attempting login to:", `${API_URL}/api/auth/login`);
     console.log("With credentials:", { email });
     
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, {
-        email,
-        password
-      }, {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-
-      const { token, userId, role } = response.data;
-      
-      // Store authentication data
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', userId);
-      localStorage.setItem('userRole', role); // Store role for authorization checks
-
-      toast.success('Login successful! Redirecting...', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        onClose: () => {
-          // Enhanced role-based routing
-          switch(role) {
-            case 'admin':
-              navigate('/admin/dashboard');
-              break;
-            case 'officer':
-              navigate('/officer/cases');
-              break;
-            default:
-              navigate('/user/profile');
+      const data = await response.json();
+      if (response.ok) {
+        // Store token and user info
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.userId);
+        
+        // For admin users, set the adminToken immediately
+        if (data.role === 'admin') {
+          localStorage.setItem('adminToken', data.token); 
+        }
+        
+        // Success toast
+        toast.success('Login successful! Redirecting...', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          onClose: () => {
+            // Redirect based on user's actual role from server response
+            if (data.role === 'admin') {
+              navigate('/admin/testimonials');
+            } else if (data.role === 'officer') {
+              navigate('/officer/dashboard');
+            } else {
+              navigate('/profile');
+            }
           }
-        }
-      });
-
+        });
+  
+      } else {
+        toast.error(data.message || 'Login failed. Please check your credentials.', {
+          position: "top-right",
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
     } catch (error) {
-      console.error('Full login error:', {
-        config: error.config,
-        response: error.response?.data
-      });
-
-      const errorMessage = error.response?.data?.message || 
-                         'Login failed. Please check your credentials.';
-      
-      toast.error(errorMessage, {
+      console.error('Login error:', error);
+      toast.error('Error connecting to server. Please try again later.', {
         position: "top-right",
         autoClose: 4000,
         hideProgressBar: false,
@@ -90,11 +88,13 @@ function Login() {
     }
   };
 
+  // Submit form on Enter key
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSubmit(e);
     }
   };
+
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <ToastContainer
