@@ -17,7 +17,6 @@ function Login() {
   // Updated environment variable reference and URL handling
   const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -25,6 +24,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    
     console.log("Attempting login to:", `${API_URL}/api/auth/login`);
     console.log("With credentials:", { email });
     
@@ -34,6 +34,7 @@ function Login() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await response.json();
       if (response.ok) {
         // Store token and user info
@@ -64,7 +65,6 @@ function Login() {
             }
           }
         });
-  
       } else {
         toast.error(data.message || 'Login failed. Please check your credentials.', {
           position: "top-right",
@@ -75,9 +75,17 @@ function Login() {
           draggable: true,
         });
       }
+
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Error connecting to server. Please try again later.', {
+      console.error('Full login error:', {
+        config: error.config,
+        response: error.response?.data
+      });
+
+      const errorMessage = error.response?.data?.message || 
+                         'Login failed. Please check your credentials.';
+      
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 4000,
         hideProgressBar: false,
@@ -90,13 +98,11 @@ function Login() {
     }
   };
 
-  // Submit form on Enter key
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSubmit(e);
     }
   };
-
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <ToastContainer
@@ -198,3 +204,4 @@ function Login() {
 }
 
 export default Login;
+
