@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 function AdminPanel() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [testimonials, setTestimonials] = useState([]);
@@ -28,55 +27,58 @@ function AdminPanel() {
   const [reportStatus, setReportStatus] = useState("Under Review");
   const [newMessage, setNewMessage] = useState("");
   
-  const API_URL = "http://localhost:5000";
+  // Use the same API_URL pattern as Login component
+  const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
   const navigate = useNavigate();
   
-  // Setup axios with auth token
+  // Setup axios with auth token using the standard token
   const authAxios = axios.create({
     baseURL: API_URL,
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     }
   });
-// Fetch all data on component mount
-const fetchData = async () => {
-  try {
-   
-    const testimonialsRes = await authAxios.get("/api/admin/testimonials");
-    setTestimonials(testimonialsRes.data);
 
-    const usersRes = await authAxios.get("/api/admin/users");
-    setUsers(usersRes.data);
+  // Fetch all data on component mount
+  const fetchData = async () => {
+    try {
+      const testimonialsRes = await authAxios.get("/api/testimonials");
+      setTestimonials(testimonialsRes.data);
 
-    const officersRes = await authAxios.get("/api/admin/users/role/officer");
-    setOfficers(officersRes.data);
+      const usersRes = await authAxios.get("/api/users");
+      setUsers(usersRes.data);
 
-    const reportsRes = await authAxios.get("/api/admin/reports");
-    setReports(reportsRes.data);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem("adminToken");
-      navigate("/login");
+      const officersRes = await authAxios.get("/api/users?role=officer");
+      setOfficers(officersRes.data);
+
+      const reportsRes = await authAxios.get("/api/reports");
+      setReports(reportsRes.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userRole");
+        navigate("/login");
+      }
     }
-  }
-};
-useEffect(() => {
-  // Check if admin token exists
-  const adminToken = localStorage.getItem("adminToken");
-  if (!adminToken) {
-    navigate("/login");
-    return;
-  }
+  };
 
-  // Fetch all data
-  fetchData();
-}, [activeTab]); // Fetch data when activeTab changes
+  useEffect(() => {
+    // Check if user is admin
+    const role = localStorage.getItem("userRole");
+    if (role !== 'admin') {
+      navigate("/unauthorized");
+      return;
+    }
+
+    // Fetch all data
+    fetchData();
+  }, [activeTab]);
 
   // Handle testimonial approval
   const updateApproval = async (id, approved) => {
     try {
-      await authAxios.put(`/api/admin/testimonials/${id}`, { approved });
+      await authAxios.patch(`/api/testimonials/${id}`, { approved });
       setTestimonials((prev) =>
         prev.map((t) => (t._id === id ? { ...t, approved } : t))
       );
@@ -85,41 +87,18 @@ useEffect(() => {
     }
   };
 
-  // Handle user form input change
-  const handleUserFormChange = (e) => {
-    const { name, value } = e.target;
-    setUserFormData({
-      ...userFormData,
-      [name]: value
-    });
-  };
-
-  // Handle user edit
-  const editUser = (user) => {
-    setEditingUser(user._id);
-    setUserFormData({
-      username: user.username,
-      email: user.email,
-      phone: user.phone || "",
-      role: user.role
-    });
-  };
-
-  // Save user changes
+  // Handle user edit and save
   const saveUserChanges = async () => {
     try {
-      const res = await authAxios.put(`/api/admin/users/${editingUser}`, userFormData);
+      const res = await authAxios.put(`/api/users/${editingUser}`, userFormData);
       setUsers(users.map(user => user._id === editingUser ? res.data : user));
       
-      // If we updated an officer, also update the officers list
       if (res.data.role === "officer") {
-        if (officers.find(o => o._id === editingUser)) {
-          setOfficers(officers.map(o => o._id === editingUser ? res.data : o));
-        } else {
-          setOfficers([...officers, res.data]);
-        }
+        setOfficers(officers.find(o => o._id === editingUser) ? 
+          officers.map(o => o._id === editingUser ? res.data : o) : 
+          [...officers, res.data]
+        );
       } else {
-        // If the user was an officer but no longer is, remove from officers list
         setOfficers(officers.filter(o => o._id !== editingUser));
       }
       
@@ -132,7 +111,7 @@ useEffect(() => {
   // Handle report status update
   const updateReportStatus = async (id, status) => {
     try {
-      await authAxios.put(`/api/admin/reports/${id}`, { status });
+      await authAxios.patch(`/api/reports/${id}/status`, { status });
       setReports(reports.map(report => 
         report._id === id ? { ...report, status } : report
       ));
@@ -142,54 +121,26 @@ useEffect(() => {
     }
   };
 
-  // Send message on report
-  const sendReportMessage = async (reportId) => {
-    if (!newMessage.trim()) return;
-    
-    try {
-      const res = await authAxios.post(`/api/admin/reports/${reportId}/messages`, {
-        message: newMessage
-      });
-      
-      setReports(reports.map(report => 
-        report._id === reportId ? {
-          ...report,
-          messages: [...report.messages, res.data]
-        } : report
-      ));
-      
-      setNewMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
-
   // Handle deletion of any item
-  const confirmDelete = (item, type) => {
-    setItemToDelete({ ...item, type });
-    setShowModal(true);
-  };
-
   const deleteItem = async () => {
     if (!itemToDelete) return;
 
     try {
-      await authAxios.delete(`/api/admin/${itemToDelete.type}/${itemToDelete._id}`);
+      await authAxios.delete(`/api/${itemToDelete.type}/${itemToDelete._id}`);
+      
       switch (itemToDelete.type) {
         case "testimonials":
-          setTestimonials((prev) => prev.filter((t) => t._id !== itemToDelete._id));
+          setTestimonials(prev => prev.filter(t => t._id !== itemToDelete._id));
           break;
         case "users":
-          setUsers((prev) => prev.filter((u) => u._id !== itemToDelete._id));
-          // Also remove from officers if applicable
-          setOfficers((prev) => prev.filter((o) => o._id !== itemToDelete._id));
+          setUsers(prev => prev.filter(u => u._id !== itemToDelete._id));
+          setOfficers(prev => prev.filter(o => o._id !== itemToDelete._id));
           break;
         case "reports":
-          setReports((prev) => prev.filter((r) => r._id !== itemToDelete._id));
-          break;
-        default:
+          setReports(prev => prev.filter(r => r._id !== itemToDelete._id));
           break;
       }
+      
       setShowModal(false);
       setItemToDelete(null);
     } catch (error) {
@@ -197,14 +148,11 @@ useEffect(() => {
     }
   };
 
-  // Handle dark mode toggle
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
   // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("adminToken");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userId");
     navigate("/login");
   };
 
