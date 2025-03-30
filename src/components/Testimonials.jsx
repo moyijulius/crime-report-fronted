@@ -13,7 +13,7 @@ function Testimonials() {
   const [error, setError] = useState(null);
   
   // Backend URL from environment variable
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
+  const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
   console.log('Backend URL:', API_URL);
   useEffect(() => {
     const fetchTestimonials = async () => {
