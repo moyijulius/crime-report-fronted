@@ -75,6 +75,11 @@ function AdminPanel() {
     fetchData();
   }, [activeTab]);
 
+  useEffect(() => {
+    const savedMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedMode);
+  }, []);
+
   // Handle testimonial approval
   const updateApproval = async (id, approved) => {
     try {
@@ -169,6 +174,13 @@ function AdminPanel() {
       t.author?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .slice((currentPage - 1) * displayCount, currentPage * displayCount);
+
+    const toggleDarkMode = () => {
+      setDarkMode(!darkMode);
+      // Optional: Save preference to localStorage
+      localStorage.setItem('darkMode', !darkMode);
+    };
+  
 
   // Filter and paginate users
   const filteredUsers = users
@@ -318,12 +330,20 @@ function AdminPanel() {
               Logout
             </button>
             
-            <button
-              onClick={toggleDarkMode}
-              className="mt-4 w-full bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
-            >
-              {darkMode ? "Light Mode" : "Dark Mode"}
-            </button>
+            <button 
+    onClick={toggleDarkMode}
+    className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 text-yellow-300' : 'bg-gray-200 text-gray-700'}`}
+  >
+    {darkMode ? (
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    ) : (
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+      </svg>
+    )}
+  </button>
           </div>
           
           {/* Main Content */}
