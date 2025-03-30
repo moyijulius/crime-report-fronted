@@ -12,26 +12,24 @@ function Testimonials() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // backend URL
-  const API_URL = 'http://localhost:5000'; 
+  // Use environment variable for API URL
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        // Use the full URL including the API_URL
-        const response = await axios.get(`${API_URL}/api/testimonials`);
+        const response = await axios.get(`${API_URL}/testimonials`);
         setTestimonials(response.data);
         setLoading(false);
       } catch (err) {
-        setError('Failed to load testimonials');
+        setError(err.message || 'Failed to load testimonials');
         setLoading(false);
         console.error('Error fetching testimonials:', err);
       }
     };
 
     fetchTestimonials();
-  }, []);
-
+  }, [API_URL]); 
   const cardVariants = {
     offscreen: {
       y: 50,
