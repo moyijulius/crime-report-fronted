@@ -70,7 +70,6 @@ function UserProfileHeader() {
   };
 
   const handleLogout = () => {
-    const navigate = useNavigate(); // React Router navigation
   
     localStorage.removeItem("token");
     localStorage.removeItem("officerToken");
