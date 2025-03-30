@@ -83,7 +83,7 @@ function UserProfileHeader() {
     });
     setTimeout(() => {
       window.location.href = '/login';
-    }, 1000);
+    }, 2005);
   };
 
   const closeErrorModal = () => {
