@@ -28,7 +28,7 @@ function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden top2">
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-blue-900/70 to-black/80 z-10"></div>
       

@@ -90,7 +90,7 @@ function ReportCrime() {
   };
 
   return (
-    <section className="py-12 bg-gray-50">
+    <section className="py-12 bg-gray-50 top">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-8 repo-h1">Report a Crime</h2>
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">

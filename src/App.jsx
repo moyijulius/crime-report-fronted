@@ -26,7 +26,7 @@ const ProtectedUserRoute = ({ children }) => {
 // Layout component to control Header/Footer visibility
 const Layout = ({ children }) => {
   const location = useLocation();
-  const hidePaths = ['/login', '/register','/officer/dashboard','/track','/track','/admin/testimonials'];
+  const hidePaths = ['/login', '/register','/officer/dashboard','/track','/track','/admin/testimonials','/report'];
   const showHeaderFooter = !hidePaths.includes(location.pathname);
 
   return (

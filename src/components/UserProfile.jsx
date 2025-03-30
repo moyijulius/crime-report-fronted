@@ -224,7 +224,7 @@ const currentReports = safeFilteredReports.slice(startIndex, endIndex);
     <>
       <OfficerHeader handleLogout={handleLogout} />
       
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8 top2">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-2xl font-bold text-gray-800">My Reports</h2>

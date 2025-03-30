@@ -10,6 +10,8 @@ function TrackCase() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
   const [isAssociatedUser, setIsAssociatedUser] = useState(false); 
 
+  const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
   // Check if the user is logged in on component mount
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,7 +41,7 @@ function TrackCase() {
       const token = localStorage.getItem('token');
       const loggedInUserId = localStorage.getItem('userId');
   
-      const response = await fetch(`http://localhost:5000/api/reports/${referenceNumber.trim()}`, {
+      const response =  await fetch(`${API_URL}/api/reports/${referenceNumber.trim()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -89,7 +91,7 @@ function TrackCase() {
     try {
       const token = localStorage.getItem('token');
   
-      const response = await fetch(`http://localhost:5000/api/reports/${referenceNumber}/messages`, {
+      const response =await fetch(`${API_URL}/api/reports/${referenceNumber}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +118,7 @@ function TrackCase() {
   };
   
   return (
-    <section className="py-12 bg-gray-50 ">
+    <section className="py-12 bg-gray-50 top">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-8">Track Your Case</h2>
 
